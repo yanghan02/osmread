@@ -41,32 +41,32 @@ class XmlParser(Parser):
             if event == 'start':
                 attrs = elem.attrib
                 if elem.tag in ('node', 'way', 'relation'):
-                    _id = long(attrs['id'])
-                    _version = int(attrs['version'])
-                    _changeset = int(attrs['changeset'])
+                    _id = long(attrs.get('id', 0))
+                    _version = int(attrs.get('version', 0))
+                    _changeset = int(attrs.get('changeset', 0))
                     # TODO: improve timestamp parsing - dateutil too slow
-                    _tstxt = attrs['timestamp']
-                    _timestamp = int((
-                        datetime(
-                            year=int(_tstxt[0:4]),
-                            month=int(_tstxt[5:7]),
-                            day=int(_tstxt[8:10]),
-                            hour=int(_tstxt[11:13]),
-                            minute=int(_tstxt[14:16]),
-                            second=int(_tstxt[17:19]),
-                            tzinfo=None
-                        ) - datetime(
-                            year=1970,
-                            month=1,
-                            day=1,
-                            tzinfo=None
-                        )
-                    ).total_seconds())
+                    _tstxt = attrs.get('timestamp', None)
+                    if _tstxt:
+                        _timestamp = int((
+                            datetime(
+                                year=int(_tstxt[0:4]),
+                                month=int(_tstxt[5:7]),
+                                day=int(_tstxt[8:10]),
+                                hour=int(_tstxt[11:13]),
+                                minute=int(_tstxt[14:16]),
+                                second=int(_tstxt[17:19]),
+                                tzinfo=None
+                            ) - datetime(
+                                year=1970,
+                                month=1,
+                                day=1,
+                                tzinfo=None
+                            )
+                        ).total_seconds())
+                    else:
+                        _timestamp = None
 
-                    try: #An object can miss an uid (when anonymous edits were possible)
-                        _uid = int(attrs['uid'])
-                    except:
-                        uid = 0
+                    _uid = int(attrs.get('uid', 0))
 
                     _tags = {}
 
